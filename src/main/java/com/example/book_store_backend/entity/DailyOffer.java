@@ -49,8 +49,9 @@ public class DailyOffer {
     @Max(value = 100, message = "Le pourcentage de remise ne peut pas dépasser 100%")
     private Integer discountPercentage;
 
-    @Column
-    private String imageUrl;
+    // CHANGEMENT: Remplacer imageUrl par image (base64)
+    @Column(columnDefinition = "LONGTEXT")
+    private String image; // Image en base64 (comme pour les livres)
 
     @Column(nullable = false)
     @NotNull(message = "La date de début est obligatoire")

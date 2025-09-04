@@ -51,7 +51,6 @@ public class DailyOfferService {
         existingOffer.setDescription(offerDetails.getDescription());
         existingOffer.setOriginalPrice(offerDetails.getOriginalPrice());
         existingOffer.setOfferPrice(offerDetails.getOfferPrice());
-        existingOffer.setImageUrl(offerDetails.getImageUrl());
         existingOffer.setStartDate(offerDetails.getStartDate());
         existingOffer.setEndDate(offerDetails.getEndDate());
         existingOffer.setIsActive(offerDetails.getIsActive());
