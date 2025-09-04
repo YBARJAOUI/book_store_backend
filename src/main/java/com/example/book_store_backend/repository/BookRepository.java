@@ -15,8 +15,6 @@ import java.util.Optional;
 @Repository
 public interface BookRepository extends JpaRepository<Book, Long> {
 
-    // Trouver un livre par ISBN
-    Optional<Book> findByIsbn(String isbn);
 
     // Trouver les livres disponibles
     List<Book> findByIsAvailableTrue();
@@ -49,8 +47,6 @@ public interface BookRepository extends JpaRepository<Book, Long> {
     @Query("SELECT b FROM Book b JOIN b.orderItems oi WHERE b.isAvailable = true GROUP BY b ORDER BY SUM(oi.quantity) DESC")
     List<Book> findBestSellingBooks(Pageable pageable);
 
-    // Vérifier l'existence par ISBN (excluant un ID spécifique pour les mises à jour)
-    boolean existsByIsbnAndIdNot(String isbn, Long id);
 
     // Trouver les livres par plage de prix
     @Query("SELECT b FROM Book b WHERE b.isAvailable = true AND b.price BETWEEN :minPrice AND :maxPrice")
@@ -60,9 +56,5 @@ public interface BookRepository extends JpaRepository<Book, Long> {
     // Trouver les livres en vedette (les plus récents)
     List<Book> findTop10ByIsAvailableTrueOrderByCreatedAtDesc();
 
-    // Trouver les livres avec stock faible
-    List<Book> findByStockLessThanEqual(int threshold);
 
-    // Vérifier l'existence par ISBN
-    boolean existsByIsbn(String isbn);
 }

@@ -1,6 +1,7 @@
 package com.example.book_store_backend.service;
 
 import com.example.book_store_backend.entity.DailyOffer;
+import com.example.book_store_backend.repository.DailyOfferRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -9,7 +10,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.util.List;
 
-// ======== DAILY OFFER SERVICE ========
 @Service
 @RequiredArgsConstructor
 @Slf4j

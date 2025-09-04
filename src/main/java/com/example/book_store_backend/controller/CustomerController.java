@@ -73,6 +73,15 @@ public class CustomerController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    // MOBILE-FRIENDLY: Return direct list
+    @GetMapping("/all")
+    @Operation(summary = "Récupérer tous les clients (liste simple pour mobile)")
+    public ResponseEntity<List<Customer>> getAllCustomersSimple() {
+        List<Customer> customers = customerService.getAllCustomers();
+        return ResponseEntity.ok(customers);
+    }
+
+    // Keep original for backward compatibility
     @GetMapping
     @Operation(summary = "Récupérer tous les clients")
     public ResponseEntity<List<Customer>> getAllCustomers() {

@@ -1,42 +1,14 @@
 package com.example.book_store_backend.service;
 
 import com.example.book_store_backend.entity.Pack;
-import com.example.book_store_backend.entity.DailyOffer;
-
+import com.example.book_store_backend.repository.PackRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
 import java.util.List;
 
-// ======== PACK REPOSITORY ========
-@org.springframework.stereotype.Repository
-interface PackRepository extends org.springframework.data.jpa.repository.JpaRepository<Pack, Long> {
-    List<Pack> findByIsActiveTrueOrderByCreatedAtDesc();
-    List<Pack> findByIsFeaturedTrue();
-    List<Pack> findByCategoryAndIsActiveTrue(String category);
-    List<Pack> findByNameContainingIgnoreCaseAndIsActiveTrue(String name);
-
-    @org.springframework.data.jpa.repository.Query("SELECT DISTINCT p.category FROM Pack p WHERE p.category IS NOT NULL AND p.isActive = true")
-    List<String> findDistinctCategories();
-}
-
-// ======== DAILY OFFER REPOSITORY ========
-@org.springframework.stereotype.Repository
-interface DailyOfferRepository extends org.springframework.data.jpa.repository.JpaRepository<DailyOffer, Long> {
-    List<DailyOffer> findByIsActiveTrueAndStartDateLessThanEqualAndEndDateGreaterThanEqualOrderByCreatedAtDesc(LocalDate date1, LocalDate date2);
-    List<DailyOffer> findByIsActiveTrueOrderByCreatedAtDesc();
-
-    @org.springframework.data.jpa.repository.Query("SELECT d FROM DailyOffer d WHERE d.isActive = true AND :currentDate BETWEEN d.startDate AND d.endDate")
-    List<DailyOffer> findCurrentActiveOffers(@org.springframework.data.repository.query.Param("currentDate") LocalDate currentDate);
-
-    List<DailyOffer> findByBookIdAndIsActiveTrue(Long bookId);
-    List<DailyOffer> findByPackIdAndIsActiveTrue(Long packId);
-}
-
-// ======== PACK SERVICE ========
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -162,4 +134,3 @@ public class PackService {
         return packRepository.findDistinctCategories();
     }
 }
-

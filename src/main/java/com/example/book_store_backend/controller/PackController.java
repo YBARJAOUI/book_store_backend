@@ -1,9 +1,7 @@
 package com.example.book_store_backend.controller;
 
 import com.example.book_store_backend.entity.Pack;
-import com.example.book_store_backend.entity.DailyOffer;
 import com.example.book_store_backend.service.PackService;
-import com.example.book_store_backend.service.DailyOfferService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;

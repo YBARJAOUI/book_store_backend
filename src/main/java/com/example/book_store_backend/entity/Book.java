@@ -23,9 +23,6 @@ public class Book {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true)
-    @NotBlank(message = "ISBN est obligatoire")
-    private String isbn;
 
     @Column(nullable = false)
     @NotBlank(message = "Le titre est obligatoire")
@@ -47,13 +44,11 @@ public class Book {
     private BigDecimal price;
 
     @Column(columnDefinition = "LONGTEXT")
-    private String imageBase64; // Image encodée en base64
+    private String image; // Image path or base64
 
     @Column(nullable = false)
     private Boolean isAvailable = true; // Simplification : disponible ou non
 
-    @Column(nullable = false)
-    private Integer stock = 0;
 
     @CreationTimestamp
     @Column(updatable = false)

@@ -27,11 +27,6 @@ public class BookService {
     public Book createBook(Book book) {
         log.info("Création d'un nouveau livre: {}", book.getTitle());
 
-        // Vérifier si l'ISBN existe déjà
-        if (bookRepository.findByIsbn(book.getIsbn()).isPresent()) {
-            throw new IllegalArgumentException("Un livre avec cet ISBN existe déjà");
-        }
-
         // Définir les valeurs par défaut
         if (book.getIsAvailable() == null) {
             book.setIsAvailable(true);
@@ -50,20 +45,12 @@ public class BookService {
 
         Book existingBook = getBookById(id);
 
-        // Vérifier l'unicité de l'ISBN lors de la mise à jour
-        if (!existingBook.getIsbn().equals(bookDetails.getIsbn()) &&
-                bookRepository.existsByIsbnAndIdNot(bookDetails.getIsbn(), id)) {
-            throw new IllegalArgumentException("Un autre livre avec cet ISBN existe déjà");
-        }
-
         // Mettre à jour les champs
-        existingBook.setIsbn(bookDetails.getIsbn());
         existingBook.setTitle(bookDetails.getTitle());
         existingBook.setAuthor(bookDetails.getAuthor());
         existingBook.setDescription(bookDetails.getDescription());
         existingBook.setPrice(bookDetails.getPrice());
-        existingBook.setStock(bookDetails.getStock());
-        existingBook.setImageBase64(bookDetails.getImageBase64());
+        existingBook.setImage(bookDetails.getImage());
         existingBook.setLanguage(bookDetails.getLanguage());
         existingBook.setCategory(bookDetails.getCategory());
         existingBook.setIsAvailable(bookDetails.getIsAvailable());
@@ -82,13 +69,6 @@ public class BookService {
                 .orElseThrow(() -> new RuntimeException("Livre non trouvé avec l'ID: " + id));
     }
 
-    /**
-     * Récupérer un livre par ISBN
-     */
-    @Transactional(readOnly = true)
-    public Optional<Book> getBookByIsbn(String isbn) {
-        return bookRepository.findByIsbn(isbn);
-    }
 
     /**
      * Récupérer tous les livres disponibles
@@ -104,6 +84,14 @@ public class BookService {
     @Transactional(readOnly = true)
     public Page<Book> getAllBooks(Pageable pageable) {
         return bookRepository.findAll(pageable);
+    }
+
+    /**
+     * Récupérer tous les livres (liste simple pour mobile)
+     */
+    @Transactional(readOnly = true)
+    public List<Book> getAllBooksSimple() {
+        return bookRepository.findAll();
     }
 
     /**
@@ -161,39 +149,6 @@ public class BookService {
         return bookRepository.findTop10ByIsAvailableTrueOrderByCreatedAtDesc();
     }
 
-    /**
-     * Récupérer les livres avec stock faible
-     */
-    @Transactional(readOnly = true)
-    public List<Book> getLowStockBooks(int threshold) {
-        return bookRepository.findByStockLessThanEqual(threshold);
-    }
 
-    /**
-     * Mettre à jour le stock d'un livre
-     */
-    public Book updateStock(Long id, int stock) {
-        Book book = getBookById(id);
-        book.setStock(stock);
-        
-        // Marquer comme indisponible si stock = 0
-        if (stock == 0) {
-            book.setIsAvailable(false);
-        } else if (stock > 0 && !book.getIsAvailable()) {
-            book.setIsAvailable(true);
-        }
-        
-        return bookRepository.save(book);
-    }
 
-    /**
-     * Vérifier si un ISBN est disponible
-     */
-    @Transactional(readOnly = true)
-    public boolean isISBNAvailable(String isbn, Long excludeId) {
-        if (excludeId != null) {
-            return !bookRepository.existsByIsbnAndIdNot(isbn, excludeId);
-        }
-        return !bookRepository.existsByIsbn(isbn);
-    }
 }

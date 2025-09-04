@@ -58,6 +58,15 @@ public class OrderController {
         return ResponseEntity.ok(order);
     }
 
+    // MOBILE-FRIENDLY: Return direct list instead of paginated response
+    @GetMapping("/all")
+    @Operation(summary = "Récupérer toutes les commandes (liste simple pour mobile)")
+    public ResponseEntity<List<Order>> getAllOrdersSimple() {
+        List<Order> orders = orderService.getAllOrdersSimple();
+        return ResponseEntity.ok(orders);
+    }
+
+    // Keep the paginated version
     @GetMapping
     @Operation(summary = "Récupérer toutes les commandes avec pagination")
     public ResponseEntity<Page<Order>> getAllOrders(Pageable pageable) {

@@ -50,15 +50,16 @@ public class BookController {
         return ResponseEntity.ok(book);
     }
 
-    @GetMapping("/isbn/{isbn}")
-    @Operation(summary = "Récupérer un livre par ISBN")
-    public ResponseEntity<Book> getBookByIsbn(
-            @Parameter(description = "ISBN du livre") @PathVariable String isbn) {
-        return bookService.getBookByIsbn(isbn)
-                .map(book -> ResponseEntity.ok(book))
-                .orElse(ResponseEntity.notFound().build());
+
+    // MOBILE-FRIENDLY: Return direct list instead of paginated response
+    @GetMapping("/all")
+    @Operation(summary = "Récupérer tous les livres (liste simple pour mobile)")
+    public ResponseEntity<List<Book>> getAllBooksSimple() {
+        List<Book> books = bookService.getAllBooksSimple();
+        return ResponseEntity.ok(books);
     }
 
+    // Keep the paginated version for web admin
     @GetMapping
     @Operation(summary = "Récupérer tous les livres avec pagination")
     public ResponseEntity<Page<Book>> getAllBooks(Pageable pageable) {
@@ -94,31 +95,9 @@ public class BookController {
         return ResponseEntity.ok(books);
     }
 
-    @GetMapping("/low-stock")
-    @Operation(summary = "Récupérer les livres avec stock faible")
-    public ResponseEntity<List<Book>> getLowStockBooks(
-            @Parameter(description = "Seuil de stock") @RequestParam(defaultValue = "10") int threshold) {
-        List<Book> books = bookService.getLowStockBooks(threshold);
-        return ResponseEntity.ok(books);
-    }
 
-    @PutMapping("/{id}/stock")
-    @Operation(summary = "Mettre à jour le stock d'un livre")
-    public ResponseEntity<Book> updateStock(
-            @Parameter(description = "ID du livre") @PathVariable Long id,
-            @Parameter(description = "Nouveau stock") @RequestParam int stock) {
-        Book updatedBook = bookService.updateStock(id, stock);
-        return ResponseEntity.ok(updatedBook);
-    }
 
-    @GetMapping("/check-isbn")
-    @Operation(summary = "Vérifier la disponibilité d'un ISBN")
-    public ResponseEntity<Boolean> checkISBNAvailability(
-            @Parameter(description = "ISBN à vérifier") @RequestParam String isbn,
-            @Parameter(description = "ID à exclure") @RequestParam(required = false) Long excludeId) {
-        boolean isAvailable = bookService.isISBNAvailable(isbn, excludeId);
-        return ResponseEntity.ok(isAvailable);
-    }
+
 
     @GetMapping("/search")
     @Operation(summary = "Rechercher des livres")
@@ -153,13 +132,11 @@ public class BookController {
         return ResponseEntity.noContent().build();
     }
 
-
     // Gestion des erreurs
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<String> handleIllegalArgument(IllegalArgumentException e) {
         return ResponseEntity.badRequest().body(e.getMessage());
     }
-
 
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<String> handleRuntimeException(RuntimeException e) {

@@ -13,7 +13,6 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -49,9 +48,6 @@ public class OrderService {
         for (OrderItemRequest itemRequest : items) {
             Book book = bookService.getBookById(itemRequest.getBookId());
 
-            // Vérifier le stock
-
-
             // Créer l'article de commande
             OrderItem orderItem = new OrderItem();
             orderItem.setBook(book);
@@ -65,8 +61,6 @@ public class OrderService {
             // Calculer le sous-total
             BigDecimal subTotal = book.getPrice().multiply(BigDecimal.valueOf(itemRequest.getQuantity()));
             totalAmount = totalAmount.add(subTotal);
-
-            // Réduire le stock
         }
 
         order.setTotalAmount(totalAmount);
@@ -152,6 +146,14 @@ public class OrderService {
     @Transactional(readOnly = true)
     public Page<Order> getAllOrders(Pageable pageable) {
         return orderRepository.findAllByOrderByCreatedAtDesc(pageable);
+    }
+
+    /**
+     * Récupérer toutes les commandes (liste simple pour mobile)
+     */
+    @Transactional(readOnly = true)
+    public List<Order> getAllOrdersSimple() {
+        return orderRepository.findTop10ByOrderByCreatedAtDesc();
     }
 
     /**
