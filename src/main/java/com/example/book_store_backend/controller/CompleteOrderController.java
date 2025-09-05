@@ -9,15 +9,19 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/complete-orders")
 @RequiredArgsConstructor
+@Slf4j
 @Tag(name = "Complete Orders", description = "API pour créer des commandes complètes avec gestion automatique des clients")
 @CrossOrigin(origins = "*")
 public class CompleteOrderController {
@@ -34,16 +38,51 @@ public class CompleteOrderController {
     @PostMapping("/simple")
     @Operation(summary = "Créer une commande avec informations client simplifiées")
     public ResponseEntity<Order> createSimpleOrder(@Valid @RequestBody SimpleOrderRequest request) {
-        Order createdOrder = completeOrderService.createSimpleOrder(
-                request.getFirstName(),
-                request.getLastName(),
-                request.getEmail(),
-                request.getPhoneNumber(),
-                request.getAddress(),
-                request.getItems(),
-                request.getNotes()
-        );
-        return new ResponseEntity<>(createdOrder, HttpStatus.CREATED);
+        try {
+            log.info("Reçu une demande de commande simple: {}", request);
+            Order createdOrder = completeOrderService.createSimpleOrder(
+                    request.getFirstName(),
+                    request.getLastName(),
+                    request.getEmail(),
+                    request.getPhoneNumber(),
+                    request.getAddress(),
+                    request.getItems(),
+                    request.getNotes()
+            );
+            log.info("Commande créée avec succès: {}", createdOrder.getId());
+            return new ResponseEntity<>(createdOrder, HttpStatus.CREATED);
+        } catch (Exception e) {
+            log.error("Erreur lors de la création de la commande", e);
+            throw e;
+        }
+    }
+
+    @GetMapping("/test")
+    @Operation(summary = "Test de l'endpoint")
+    public ResponseEntity<String> testEndpoint() {
+        return ResponseEntity.ok("Endpoint de commande fonctionne correctement!");
+    }
+
+    @PostMapping("/test-simple")
+    @Operation(summary = "Test simple de création de commande")
+    public ResponseEntity<Map<String, Object>> testSimpleOrder(@RequestBody Map<String, Object> request) {
+        try {
+            log.info("Test simple - Données reçues: {}", request);
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("message", "Données reçues correctement");
+            response.put("receivedData", request);
+            response.put("timestamp", java.time.LocalDateTime.now());
+            
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            log.error("Erreur dans le test simple", e);
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("success", false);
+            errorResponse.put("error", e.getMessage());
+            return ResponseEntity.badRequest().body(errorResponse);
+        }
     }
 
     // DTO pour la commande simple
@@ -98,11 +137,25 @@ public class CompleteOrderController {
     // Gestion des erreurs
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<String> handleIllegalArgument(IllegalArgumentException e) {
-        return ResponseEntity.badRequest().body(e.getMessage());
+        return ResponseEntity.badRequest().body("Erreur de validation: " + e.getMessage());
     }
 
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<String> handleRuntimeException(RuntimeException e) {
-        return ResponseEntity.badRequest().body(e.getMessage());
+        return ResponseEntity.badRequest().body("Erreur de traitement: " + e.getMessage());
+    }
+
+    @ExceptionHandler(org.springframework.web.bind.MethodArgumentNotValidException.class)
+    public ResponseEntity<String> handleValidationException(org.springframework.web.bind.MethodArgumentNotValidException e) {
+        StringBuilder errors = new StringBuilder("Erreurs de validation:\n");
+        e.getBindingResult().getFieldErrors().forEach(error -> {
+            errors.append("- ").append(error.getField()).append(": ").append(error.getDefaultMessage()).append("\n");
+        });
+        return ResponseEntity.badRequest().body(errors.toString());
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<String> handleGenericException(Exception e) {
+        return ResponseEntity.badRequest().body("Erreur inattendue: " + e.getMessage());
     }
 }

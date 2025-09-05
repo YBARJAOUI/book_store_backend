@@ -30,44 +30,49 @@ public class OrderService {
     public Order createOrder(Long customerId, List<OrderItemRequest> items, String shippingAddress, String notes) {
         log.info("Création d'une nouvelle commande pour le client ID: {}", customerId);
 
-        // Récupérer le client
-        Customer customer = customerService.getCustomerById(customerId);
+        try {
+            // Récupérer le client
+            Customer customer = customerService.getCustomerById(customerId);
 
-        // Créer la commande
-        Order order = new Order();
-        order.setCustomer(customer);
-        order.setOrderNumber(generateOrderNumber());
-        order.setShippingAddress(shippingAddress != null ? shippingAddress : customer.getAddress());
-        order.setNotes(notes);
-        order.setStatus(OrderStatus.PENDING);
-        order.setPaymentStatus(PaymentStatus.PENDING);
+            // Créer la commande
+            Order order = new Order();
+            order.setCustomer(customer);
+            order.setOrderNumber(generateOrderNumber());
+            order.setShippingAddress(shippingAddress != null ? shippingAddress : customer.getAddress());
+            order.setNotes(notes);
+            order.setStatus(OrderStatus.PENDING);
+            order.setPaymentStatus(PaymentStatus.PENDING);
 
-        // Traiter les articles de la commande
-        BigDecimal totalAmount = BigDecimal.ZERO;
+            // Traiter les articles de la commande
+            BigDecimal totalAmount = BigDecimal.ZERO;
 
-        for (OrderItemRequest itemRequest : items) {
-            Book book = bookService.getBookById(itemRequest.getBookId());
+            for (OrderItemRequest itemRequest : items) {
+                Book book = bookService.getBookById(itemRequest.getBookId());
 
-            // Créer l'article de commande
-            OrderItem orderItem = new OrderItem();
-            orderItem.setBook(book);
-            orderItem.setQuantity(itemRequest.getQuantity());
-            orderItem.setPrice(book.getPrice());
-            orderItem.setBookTitle(book.getTitle());
-            orderItem.setBookAuthor(book.getAuthor());
+                // Créer l'article de commande
+                OrderItem orderItem = new OrderItem();
+                orderItem.setBook(book);
+                orderItem.setQuantity(itemRequest.getQuantity());
+                orderItem.setPrice(book.getPrice());
+                orderItem.setBookTitle(book.getTitle());
+                orderItem.setBookAuthor(book.getAuthor());
 
-            order.addOrderItem(orderItem);
+                order.addOrderItem(orderItem);
 
-            // Calculer le sous-total
-            BigDecimal subTotal = book.getPrice().multiply(BigDecimal.valueOf(itemRequest.getQuantity()));
-            totalAmount = totalAmount.add(subTotal);
+                // Calculer le sous-total
+                BigDecimal subTotal = book.getPrice().multiply(BigDecimal.valueOf(itemRequest.getQuantity()));
+                totalAmount = totalAmount.add(subTotal);
+            }
+
+            order.setTotalAmount(totalAmount);
+
+            Order savedOrder = orderRepository.save(order);
+            log.info("Commande créée avec succès. Numéro: {}, Total: {}", savedOrder.getOrderNumber(), savedOrder.getTotalAmount());
+            return savedOrder;
+        } catch (Exception e) {
+            log.error("Erreur lors de la création de la commande", e);
+            throw new RuntimeException("Erreur lors de la création de la commande: " + e.getMessage(), e);
         }
-
-        order.setTotalAmount(totalAmount);
-
-        Order savedOrder = orderRepository.save(order);
-        log.info("Commande créée avec succès. Numéro: {}, Total: {}", savedOrder.getOrderNumber(), savedOrder.getTotalAmount());
-        return savedOrder;
     }
 
     /**

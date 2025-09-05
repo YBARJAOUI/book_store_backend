@@ -40,9 +40,9 @@ public class Customer {
     @Email(message = "Format d'email invalide")
     private String email;
 
-    @Column(nullable = false)
+    @Column(name = "phone_number", nullable = false)
     @NotBlank(message = "Le numéro de téléphone est obligatoire")
-    @Pattern(regexp = "^[+]?[0-9]{10,15}$", message = "Format de téléphone invalide")
+    @Pattern(regexp = "^[+]?[0-9\\s\\-()]{10,20}$", message = "Format de téléphone invalide")
     private String phoneNumber;
 
     @Column(nullable = false)

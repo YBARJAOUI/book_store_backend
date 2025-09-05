@@ -58,7 +58,6 @@ public class Book {
     @Column
     private LocalDateTime updatedAt;
 
-    // Relation One-to-Many avec OrderItem
     @Column(nullable = false)
     @NotBlank(message = "La langue est obligatoire")
     private String language; // francais, arabe, anglais
@@ -68,6 +67,7 @@ public class Book {
     @Size(min = 2, max = 100, message = "La catégorie doit contenir entre 2 et 100 caractères")
     private String category;
 
+    // Relation One-to-Many avec OrderItem
     @OneToMany(mappedBy = "book", fetch = FetchType.LAZY)
     private List<OrderItem> orderItems;
 }

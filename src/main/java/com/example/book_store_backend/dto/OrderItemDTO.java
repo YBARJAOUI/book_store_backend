@@ -12,4 +12,13 @@ public class OrderItemDTO {
     @NotNull(message = "La quantité est obligatoire")
     @Min(value = 1, message = "La quantité doit être supérieure à 0")
     private Integer quantity;
+    
+    // Constructeur par défaut
+    public OrderItemDTO() {}
+    
+    // Constructeur avec paramètres
+    public OrderItemDTO(Long bookId, Integer quantity) {
+        this.bookId = bookId;
+        this.quantity = quantity;
+    }
 }
